@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
-from .storage import STUDENTS
-from .schema import StudentCreateSchema, Student
+from .storage import STUDENTS, MARKS
+from .schema import StudentCreateSchema, Student, Mark
 
 router = APIRouter()
 
@@ -33,5 +33,16 @@ async def update_idem(student_id: int, first_name: str, last_name: str):
 
     return student
 
-# @router.post("/{student_id}/marks/{ocena}")
-# async def add_mark(student_id: int):
+@router.post("/{student_id}/marks/{ocena:float}")
+async def add_mark(student_id: int, ocena: Mark):
+    if student_id not in STUDENTS:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found",
+        )
+    else:
+        if student_id not in MARKS:
+            MARKS[student_id] = [ocena]
+        else:
+            MARKS[student_id].append(ocena)
+    return MARKS
